@@ -1,36 +1,51 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
 	"runtime"
 	"sort"
-	"time"
 
 	"github.com/fogleman/physarum/pkg/physarum"
-	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/glfw/v3.1/glfw"
+	// "github.com/go-gl/gl/v2.1/gl"
+	// "github.com/go-gl/gl/v3.2-compatibility/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
+	// "github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/gonum/stat"
 )
 
+// const (
+// 	width      = 512
+// 	height     = 512
+// 	particles  = 1 << 20
+// 	blurRadius = 1
+// 	blurPasses = 2+
+// 	zoomFactor = 1
+// 	scale      = 1
+// 	gamma      = 1 / 2.2
+// 	title      = "physarum"
+// )
+
 const (
-	width      = 512
-	height     = 512
-	particles  = 1 << 20
+	// width      = 2048
+	// height     = 1024
+	// particles  = 1 << 23
 	blurRadius = 1
 	blurPasses = 2
 	zoomFactor = 1
-	scale      = 1
+	scale      = 0.5
 	gamma      = 1 / 2.2
 	title      = "physarum"
 )
 
 var Configs = []physarum.Config{
+	// NOTE: These no longer seem to work...
+
 	// cyclones
-	// 	{4, 0.87946403, 42.838207, 0.97047323, 2.8447638, 5, 0.29681, 1.4512},
-	// 	{4, 1.7357124, 17.430664, 0.30490428, 2.1706762, 5, 0.27878627, 0.46232897},
+	// {4, 0.87946403, 42.838207, 0.97047323, 2.8447638, 5, 0.29681, 1.4512},
+	// {4, 1.7357124, 17.430664, 0.30490428, 2.1706762, 5, 0.27878627, 0.46232897},
 
 	// dunes
 	// {2, 0.99931663, 44.21652, 1.9704952, 1.4215798, 5, 0.1580779, 0.7574965},
@@ -61,19 +76,20 @@ func init() {
 }
 
 type Texture struct {
-	w   int
-	h   int
-	id  uint32
-	buf []uint8
-	acc []float32
-	r   [][]float32
-	g   [][]float32
-	b   [][]float32
-	min []float32
-	max []float32
+	w        int
+	h        int
+	id       uint32
+	buf      []uint8
+	acc      []float32
+	r        [][]float32
+	g        [][]float32
+	b        [][]float32
+	min      []float32
+	max      []float32
+	settings physarum.Settings
 }
 
-func NewTexture() *Texture {
+func NewTexture(settings physarum.Settings) *Texture {
 	var id uint32
 	gl.GenTextures(1, &id)
 	gl.BindTexture(gl.TEXTURE_2D, id)
@@ -82,15 +98,15 @@ func NewTexture() *Texture {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
-	return &Texture{id: id}
+	return &Texture{id: id, settings: settings}
 }
 
-func (t *Texture) Init(width, height, count int) {
+func (t *Texture) Init(count int) {
 	const N = 65536
-	t.w = width
-	t.h = height
-	t.buf = make([]uint8, width*height*3)
-	t.acc = make([]float32, width*height*3)
+	t.w = t.settings["width"].(int)
+	t.h = t.settings["height"].(int)
+	t.buf = make([]uint8, t.w*t.h*3)
+	t.acc = make([]float32, t.w*t.h*3)
 	t.r = make([][]float32, count)
 	t.g = make([][]float32, count)
 	t.b = make([][]float32, count)
@@ -99,7 +115,7 @@ func (t *Texture) Init(width, height, count int) {
 		t.g[i] = make([]float32, N)
 		t.b[i] = make([]float32, N)
 	}
-	max := particles / float32(width*height) * 10
+	max := float32(t.settings["particles"].(int)) / float32(t.w*t.h) * 10
 	t.min = make([]float32, count)
 	t.max = make([]float32, count)
 	for i := range t.min {
@@ -210,35 +226,42 @@ func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
 	gl.BindTexture(gl.TEXTURE_2D, 0)
 }
 
-func makeModel() *physarum.Model {
+func makeModel(settings physarum.Settings) *physarum.Model {
 	configs := physarum.RandomConfigs(2 + rand.Intn(4))
 	if len(Configs) > 0 {
 		configs = Configs
 	}
 	table := physarum.RandomAttractionTable(len(configs))
 	model := physarum.NewModel(
-		width, height, particles, blurRadius, blurPasses, zoomFactor,
-		configs, table)
+		settings["width"].(int), settings["height"].(int), settings["particles"].(int), blurRadius, blurPasses,
+		zoomFactor, configs, table, "random_circle_random")
 	physarum.PrintConfigs(model.Configs, model.AttractionTable)
 	physarum.SummarizeConfigs(model.Configs)
-	fmt.Println()
+	log.Println()
 	return model
 }
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
+	settings := physarum.NewSettings()
+	log.Println(settings)
+
+	rand.Seed(settings["seed"].(int64))
+
+	num_steps := 1
 
 	// initialize glfw
 	if err := glfw.Init(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	defer glfw.Terminate()
 
 	// create window
-	glfw.WindowHint(glfw.ContextVersionMajor, 2)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	window, err := glfw.CreateWindow(
-		width*scale, height*scale, title, nil, nil)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 6)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCompatProfile)
+	displayWidth := int(float32(settings["width"].(int)) * scale)
+	displayHeight := int(float32(settings["height"].(int)) * scale)
+	window, err := glfw.CreateWindow(displayWidth, displayHeight, title, nil, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -251,42 +274,86 @@ func main() {
 	gl.Enable(gl.TEXTURE_2D)
 
 	var model *physarum.Model
-	texture := NewTexture()
+	texture := NewTexture(settings)
 
 	reset := func() {
-		model = makeModel()
-		texture.Init(model.W, model.H, len(model.Configs))
+		model = makeModel(settings)
+		texture.Init(len(model.Configs))
 		texture.SetPalette(physarum.RandomPalette(), gamma)
 	}
 
 	reset()
 
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
+		// Manage key presses
 		if action == glfw.Press {
-			if key == glfw.KeySpace {
+			switch key {
+			case glfw.KeySpace:
 				reset()
-			}
-			if key == glfw.KeyR {
+			case glfw.KeyR:
 				model.StartOver()
-			}
-			if key == glfw.KeyP {
+			case glfw.KeyP:
 				texture.SetPalette(physarum.RandomPalette(), gamma)
-			}
-			if key == glfw.KeyO {
+			case glfw.KeyO:
 				texture.ShufflePalette()
-			}
-			if key == glfw.KeyA {
+			case glfw.KeyA:
 				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyKPAdd:
+				if num_steps < math.MaxInt {
+					num_steps++
+				}
+			case glfw.KeyKPSubtract:
+				if num_steps > 1 {
+					num_steps--
+				}
+			case glfw.Key1:
+				model.InitType = "random"
+			case glfw.Key2:
+				model.InitType = "point"
+			case glfw.Key3:
+				model.InitType = "random_circle_random"
+			case glfw.Key4:
+				model.InitType = "random_circle_out"
+			case glfw.Key5:
+				model.InitType = "random_circle_in"
+			case glfw.Key6:
+				model.InitType = "random_circle_quads"
+			case glfw.Key7:
+				model.InitType = "random_circle_cw"
 			}
 		}
 	})
 
-	// main loop
+	// Set up goroutine to save video with FFMPEG if required
+	saveVideo := true
+	var video *physarum.Video
+	videoFameChann := make(chan []uint8, 1024)
+	videoDoneChann := make(chan bool)
+	if saveVideo {
+		video = physarum.NewVideo(settings)
+		go video.SaveVideoFfmpeg(videoFameChann, videoDoneChann)
+	}
+
+	// Until the window needs closing
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		model.Step()
+		for i := 0; i < num_steps; i++ {
+			// Step model at desired rate
+			model.Step()
+		}
+		if saveVideo {
+			// Send framebuffer for rendering into video if required
+			videoFameChann <- texture.buf
+		}
+
+		// Display image and manage interface
 		texture.Draw(window, model.Data())
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
+
+	// Close the channel and let the video finish
+	close(videoFameChann)
+	log.Println("sent all frames, waiting for encoding to complete")
+	<-videoDoneChann // wait for the goroutine to be finished
 }
