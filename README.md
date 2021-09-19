@@ -1,6 +1,6 @@
 # Physarum Transport Networks
 
-![Example](https://www.michaelfogleman.com/static/physarum/header.png)
+![Example](https://i.imgur.com/HIugwdi.png)
 
 This is a particle-based simulation inspired by the _Physarum polycephalum_
 slime mold.
@@ -18,4 +18,4 @@ That's the magic of generative algorithms!
 
 ## Examples
 
-![Montage](https://www.michaelfogleman.com/static/physarum/montage-small.jpg)
+![Montage](https://i.imgur.com/h41ylJp.jpg)
