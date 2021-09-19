@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"sort"
 
-	"github.com/fogleman/physarum/pkg/physarum"
+	"github.com/droidicus/physarum/pkg/physarum"
 	// "github.com/go-gl/gl/v2.1/gl"
 	// "github.com/go-gl/gl/v3.2-compatibility/gl"
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
