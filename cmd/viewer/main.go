@@ -7,11 +7,10 @@ import (
 	"runtime"
 	"sort"
 
+	// _ "net/http/pprof"
+
 	"github.com/droidicus/physarum/pkg/physarum"
-	// "github.com/go-gl/gl/v2.1/gl"
-	// "github.com/go-gl/gl/v3.2-compatibility/gl"
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
-	// "github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/gonum/stat"
 )
