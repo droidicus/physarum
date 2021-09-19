@@ -163,3 +163,26 @@ HexColor(0xFA1A1A),
 HexColor(0xFFFFFF),
 HexColor(0x33FFFF),
 HexColor(0xFF9900),
+
+
+#7 creeping tenticles
+2021/09/19 18:26:36 map[fps:60 height:2048 initType:random_circle_random output_file:out particles:8388608 seed:1632090396094433500 width:4096]
+configs = []Config{
+        Config{0.5981365, 6.4512086, 1.8334583, 1.889087, 5, 0.1},
+        Config{0.62044483, 63.716316, 1.7212989, 0.26136988, 5, 0.1},
+}
+table = [][]float32{
+        {0.6504671, -0.8198153},
+        {-1.3457868, 1.3182212},
+}
+StepDistance ......   1.889,   0.261
+SensorDistance ....   6.451,  63.716
+SensorAngle .......  34.271,  35.549
+RotationAngle ..... 105.049,  98.623
+DecayFactor .......   0.100,   0.100
+2021/09/19 18:26:36
+HexColor(0x730046),
+HexColor(0xBFBB11),
+HexColor(0xC93C00),
+HexColor(0xE88801),
+HexColor(0xFFC200),
