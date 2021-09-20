@@ -1,4 +1,4 @@
-module github.com/fogleman/physarum
+module github.com/droidicus/physarum
 
 go 1.17
 

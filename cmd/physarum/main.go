@@ -5,7 +5,7 @@ import (
 	_ "net/http/pprof"
 	"time"
 
-	"github.com/fogleman/physarum/pkg/physarum"
+	"github.com/droidicus/physarum/pkg/physarum"
 )
 
 func main() {
