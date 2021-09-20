@@ -48,7 +48,7 @@ func (v *Video) StartVideo() {
 		"-crf", "18", // Nearly visually lossless, pretty big files
 		"-pix_fmt", "yuv420p",
 		"-movflags", "frag_keyframe", // Fragmented output file for crash recoverablity
-		v.settings["output_file"].(string)+".mp4",
+		v.settings.GetFilePathWOExtension()+".mp4",
 	)
 
 	// Set up pipe to send data to FFMPEG
@@ -92,10 +92,10 @@ func (v *Video) FaststartVideoFfmpeg() {
 	faststart_cmd := exec.Command(
 		"ffmpeg.exe",
 		"-y",
-		"-i", "out.mp4",
+		"-i", v.settings.GetFilePathWOExtension()+".mp4",
 		"-c", "copy",
 		"-movflags", "faststart",
-		v.settings["output_file"].(string)+"_faststart.mp4",
+		v.settings.GetFilePathWOExtension()+"_faststart.mp4",
 	)
 	stdoutStderr, err := faststart_cmd.CombinedOutput()
 	check(err)
