@@ -19,7 +19,7 @@ var DefaultSettings = Settings{
 	"initType":    "random_circle_random",
 	"particles":   1 << 23,
 	"fps":         60,
-	"seed":        time.Now().UTC().UnixNano(),
+	"seed":        time.Now().UTC().UnixNano() - time.Date(2020, 3, 12, 9, 0, 0, 0, time.UTC).UnixNano(), // nanoseconds since psuedo-epoch
 	"output_path": "output",
 	"blurRadius":  1,
 	"blurPasses":  2,
@@ -31,7 +31,7 @@ var DefaultSettings = Settings{
 func NewSettings() Settings {
 	// TODO: Stub, replace with json read/write
 	s := DefaultSettings
-	s["output_file"] = fmt.Sprint(s["seed"].(int64) / (1000 * 1000))
+	s["output_file"] = fmt.Sprint(s["seed"].(int64) / (1000 * 1000 * 1000)) // seconds since psuedo-epoch
 	numConfigs := 2 + rand.Intn(4)
 	s["configs"] = RandomConfigs(numConfigs)
 	s["attract_table"] = RandomAttractionTable(numConfigs)
