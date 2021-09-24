@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"sort"
+	"sync"
 
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -96,27 +97,43 @@ func (t *Texture) AutoLevel(data [][]float32, minPercentile, maxPercentile float
 }
 
 func (t *Texture) update(data [][]float32) {
+	// waitgroup for threads
+	var wg sync.WaitGroup
+
 	for i := range t.acc {
 		t.acc[i] = 0
 	}
 	f := float32(len(t.r[0]) - 1)
 	for i, grid := range data {
-		min, max := t.min[i], t.max[i]
-		m := 1 / float32(max-min)
-		for j, value := range grid {
-			p := (value - min) * m
-			if p < 0 {
-				p = 0
+		// New thread to wait on
+		wg.Add(1)
+
+		go func(i int, grid []float32) {
+			// Defer
+			defer wg.Done()
+
+			// Do parallel loops
+			min, max := t.min[i], t.max[i]
+			m := 1 / float32(max-min)
+			for j, value := range grid {
+				p := (value - min) * m
+				if p < 0 {
+					p = 0
+				}
+				if p > 1 {
+					p = 1
+				}
+				index := int(p * f)
+				t.acc[j*3+0] += t.r[i][index]
+				t.acc[j*3+1] += t.g[i][index]
+				t.acc[j*3+2] += t.b[i][index]
 			}
-			if p > 1 {
-				p = 1
-			}
-			index := int(p * f)
-			t.acc[j*3+0] += t.r[i][index]
-			t.acc[j*3+1] += t.g[i][index]
-			t.acc[j*3+2] += t.b[i][index]
-		}
+		}(i, grid)
 	}
+
+	// Wait for the threads to finish
+	wg.Wait()
+
 	for i, value := range t.acc {
 		if value > 255 {
 			value = 255
