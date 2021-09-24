@@ -24,6 +24,52 @@ func TestTrigLookupTables(t *testing.T) {
 			t.Fatalf("sin(%v) = %v, math.Sin(%v) = %v (%g)", a, sin(a), a, math.Sin(float64(a)), sinError)
 		}
 	}
-	fmt.Println(maxCosError)
-	fmt.Println(maxSinError)
+	fmt.Println("Max cos error: ", maxCosError)
+	fmt.Println("Max sin error: ", maxSinError)
+}
+
+var result_float float32
+
+func BenchmarkCos64(b *testing.B) {
+	var r float32
+
+	// Run the cos benchmark
+	for i := 0; i < b.N; i++ {
+		r = float32(math.Cos(float64(float32(i))))
+	}
+
+	result_float = r
+}
+
+func BenchmarkCustonCos32(b *testing.B) {
+	var r float32
+
+	// Run the cos benchmark
+	for i := 0; i < b.N; i++ {
+		r = cos(float32(i))
+	}
+
+	result_float = r
+}
+
+func BenchmarkSin64(b *testing.B) {
+	var r float32
+
+	// Run the cos benchmark
+	for i := 0; i < b.N; i++ {
+		r = float32(math.Cos(float64(float32(i))))
+	}
+
+	result_float = r
+}
+
+func BenchmarkCustonSin32(b *testing.B) {
+	var r float32
+
+	// Run the cos benchmark
+	for i := 0; i < b.N; i++ {
+		r = cos(float32(i))
+	}
+
+	result_float = r
 }
