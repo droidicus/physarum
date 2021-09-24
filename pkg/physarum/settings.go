@@ -28,14 +28,42 @@ var DefaultSettings = Settings{
 	"gamma":       1 / 2.2,
 }
 
-func NewSettings() Settings {
+func NewSettings(settingsFile string) Settings {
 	// TODO: Stub, replace with json read/write
 	s := DefaultSettings
+	rand.Seed(s["seed"].(int64))
+
 	s["output_file"] = fmt.Sprint(s["seed"].(int64) / (1000 * 1000 * 1000)) // seconds since psuedo-epoch
 	numConfigs := 2 + rand.Intn(4)
 	s["configs"] = RandomConfigs(numConfigs)
 	s["attract_table"] = RandomAttractionTable(numConfigs)
 	s["palette"] = RandomPalette()
+
+	if settingsFile != "" {
+		fmt.Println(settingsFile)
+
+		// Open our jsonFile, handle errors, and read the file
+		jsonFile, err := os.Open(settingsFile)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer jsonFile.Close() // defer the closing of our jsonFile so that we can parse it later on
+		jsonBytes, _ := ioutil.ReadAll(jsonFile)
+
+		fmt.Print(string(jsonBytes))
+
+		// Parse the json
+		var data map[string]interface{}
+		if err := json.Unmarshal(jsonBytes, &data); err != nil {
+			log.Println("Error parsing JSON string - ", err)
+		}
+
+		fmt.Println("*")
+		fmt.Print(data)
+		fmt.Println("*")
+	}
+
+	// panic("break")
 	return s
 	// return Settings{}
 }
