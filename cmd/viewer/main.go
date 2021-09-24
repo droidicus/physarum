@@ -1,11 +1,13 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"math"
 	"math/rand"
 	"runtime"
 
+	// "net/http"
 	// _ "net/http/pprof"
 
 	"github.com/droidicus/physarum/pkg/physarum"
@@ -38,7 +40,17 @@ func makeModel(settings physarum.Settings) *physarum.Model {
 }
 
 func main() {
-	settings := physarum.NewSettings()
+	// // Profiler
+	// go func() {
+	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+
+	// Command line options
+	settingsFilePtr := flag.String("settings", "", "Location of a json file to use for settings to run the simulation")
+	flag.Parse()
+
+	// Read settings if they are given, and
+	settings := physarum.NewSettings(*settingsFilePtr)
 	log.Println(settings)
 	log.Println(string(settings.GetSettingsJson()))
 	settings.WriteSettingsToFile()
