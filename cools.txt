@@ -186,3 +186,32 @@ HexColor(0xBFBB11),
 HexColor(0xC93C00),
 HexColor(0xE88801),
 HexColor(0xFFC200),
+
+
+#8 RGY
+2021/09/19 21:45:41 map[blurPasses:2 blurRadius:1 fps:60 gamma:0.45454545454545453 height:2048 initType:random_circle_random output_file:1234 output_path:output particles:8388608 scale:0.5 seed:1632102341755901500 width:4096 zoomFactor:1]
+2021/09/19 21:45:41 {"blurPasses":2,"blurRadius":1,"fps":60,"gamma":0.45454545454545453,"height":2048,"initType":"random_circle_random","output_file":"1234","output_path":"output","particles":8388608,"scale":0.5,"seed":1632102341755901500,"width":4096,"zoomFactor":1}
+configs = []Config{
+        Config{0.858412, 13.723582, 0.81740475, 1.2321107, 5, 0.1},
+        Config{0.67985916, 6.727354, 0.83015144, 1.6429123, 5, 0.1},
+        Config{0.9410356, 27.458357, 0.2985268, 0.9554509, 5, 0.1},
+        Config{1.5659885, 29.468199, 0.46494985, 1.2581801, 5, 0.1},
+}
+table = [][]float32{
+        {1.1657412, -1.1856207, -0.63312536, -0.748427},
+        {-0.84075046, 1.3123516, -0.9823048, -1.1090978},
+        {-0.79003793, -0.84654546, 1.1698055, -1.1112503},
+        {-0.70428705, -1.0053196, -1.3863399, 0.9167659},
+}
+StepDistance ......   1.232,   1.643,   0.955,   1.258
+SensorDistance ....  13.724,   6.727,  27.458,  29.468
+SensorAngle .......  49.183,  38.953,  53.917,  89.725
+RotationAngle .....  46.834,  47.564,  17.104,  26.640
+DecayFactor .......   0.100,   0.100,   0.100,   0.100
+2021/09/19 21:45:42
+HexColor(0xFBD506),
+HexColor(0xFF9F00),
+HexColor(0xF41C54),
+HexColor(0x00AAB5),
+HexColor(0xA8BF12),
+
