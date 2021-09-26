@@ -13,7 +13,7 @@ import (
 type Video struct {
 	cmd      *exec.Cmd
 	stdin    io.WriteCloser
-	settings Settings
+	settings *Settings
 }
 
 func check(err error) {
@@ -22,7 +22,7 @@ func check(err error) {
 	}
 }
 
-func NewVideo(settings Settings) *Video {
+func NewVideo(settings *Settings) *Video {
 	// Make a new video, and start the process to recieve data later
 	v := &Video{settings: settings}
 	v.StartVideo()
@@ -35,8 +35,8 @@ func (v *Video) StartVideo() {
 		"-y",             // Overwrite output file if it exists
 		"-f", "rawvideo", // Raw framebuffer
 		"-pix_fmt", "rgb24",
-		"-s", fmt.Sprintf("%vx%v", v.settings["width"].(int), v.settings["height"].(int)), // Resolution
-		"-r", fmt.Sprint(v.settings["fps"].(int)),
+		"-s", fmt.Sprintf("%vx%v", v.settings.Width, v.settings.Height), // Resolution
+		"-r", fmt.Sprint(v.settings.Fps),
 		"-i", "pipe:0", // Take input from stdin
 		"-c:v", "libx264",
 		"-profile:v", "high", // bells
@@ -44,7 +44,7 @@ func (v *Video) StartVideo() {
 		"-tune", "film", // whistles
 		"-bf", "2", // 2 b-frames
 		"-rc-lookahead", "2",
-		"-g", fmt.Sprint(v.settings["fps"].(int)/2), // Closed GOP at half frame rate
+		"-g", fmt.Sprint(v.settings.Fps/2), // Closed GOP at half frame rate
 		"-crf", "18", // Nearly visually lossless, pretty big files
 		"-pix_fmt", "yuv420p",
 		"-movflags", "frag_keyframe", // Fragmented output file for crash recoverablity

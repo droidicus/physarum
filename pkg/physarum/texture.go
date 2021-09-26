@@ -12,20 +12,19 @@ import (
 )
 
 type Texture struct {
-	w        int
-	h        int
-	id       uint32
-	buf      []uint8
-	acc      []float32
-	r        [][]float32
-	g        [][]float32
-	b        [][]float32
-	min      []float32
-	max      []float32
-	settings Settings
+	w   int
+	h   int
+	id  uint32
+	buf []uint8
+	acc []float32
+	r   [][]float32
+	g   [][]float32
+	b   [][]float32
+	min []float32
+	max []float32
 }
 
-func NewTexture(settings Settings) *Texture {
+func NewTexture(settings *Settings) *Texture {
 	var id uint32
 	gl.GenTextures(1, &id)
 	gl.BindTexture(gl.TEXTURE_2D, id)
@@ -34,13 +33,13 @@ func NewTexture(settings Settings) *Texture {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
-	return &Texture{id: id, settings: settings}
+	return &Texture{id: id}
 }
 
-func (t *Texture) Init(count int) {
+func (t *Texture) Init(count int, width int, height int, particles int) {
 	const N = 65536
-	t.w = t.settings["width"].(int)
-	t.h = t.settings["height"].(int)
+	t.w = width
+	t.h = height
 	t.buf = make([]uint8, t.w*t.h*3)
 	t.acc = make([]float32, t.w*t.h*3)
 	t.r = make([][]float32, count)
@@ -51,7 +50,7 @@ func (t *Texture) Init(count int) {
 		t.g[i] = make([]float32, N)
 		t.b[i] = make([]float32, N)
 	}
-	max := float32(t.settings["particles"].(int)) / float32(t.w*t.h) * 10
+	max := float32(particles) / float32(t.w*t.h) * 10
 	t.min = make([]float32, count)
 	t.max = make([]float32, count)
 	for i := range t.min {

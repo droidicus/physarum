@@ -20,25 +20,6 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func makeModel(settings physarum.Settings) *physarum.Model {
-	model := physarum.NewModel(
-		settings["width"].(int),
-		settings["height"].(int),
-		settings["particles"].(int),
-		settings["blurRadius"].(int),
-		settings["blurPasses"].(int),
-		float32(settings["zoomFactor"].(int)),
-		settings["configs"].([]physarum.Config),
-		settings["attract_table"].([][]float32),
-		settings["initType"].(string),
-	)
-	log.Println("********************")
-	physarum.PrintConfigs(model.Configs, model.AttractionTable)
-	physarum.SummarizeConfigs(model.Configs)
-	log.Println("********************")
-	return model
-}
-
 func main() {
 	// // Profiler
 	// go func() {
@@ -49,15 +30,12 @@ func main() {
 	settingsFilePtr := flag.String("settings", "", "Location of a json file to use for settings to run the simulation")
 	flag.Parse()
 
-	// Read settings if they are given, and
+	// Read settings if they are given, and write them to record complete settings
 	settings := physarum.NewSettings(*settingsFilePtr)
-	log.Println(settings)
-	log.Println(string(settings.GetSettingsJson()))
 	settings.WriteSettingsToFile()
 
-	rand.Seed(settings["seed"].(int64))
-
-	num_steps := 1
+	// Reset the seed
+	rand.Seed(settings.Seed)
 
 	// initialize glfw
 	if err := glfw.Init(); err != nil {
@@ -69,9 +47,8 @@ func main() {
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
 	glfw.WindowHint(glfw.ContextVersionMinor, 6)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCompatProfile)
-	gamma := float32(settings["scale"].(float64))
-	displayWidth := int(float32(settings["width"].(int)) * gamma)
-	displayHeight := int(float32(settings["height"].(int)) * gamma)
+	displayWidth := int(float32(settings.Width) * settings.Scale)
+	displayHeight := int(float32(settings.Height) * settings.Scale)
 	window, err := glfw.CreateWindow(displayWidth, displayHeight, "physarum", nil, nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -84,19 +61,20 @@ func main() {
 	}
 	gl.Enable(gl.TEXTURE_2D)
 
+	// Create the model to simulate
 	var model *physarum.Model
 	texture := physarum.NewTexture(settings)
 
+	// Function that runs whenever we want to reset the simulation, and run it now
 	reset := func() {
-		model = makeModel(settings)
-		texture.Init(len(model.Configs))
-		texture.SetPalette(settings["palette"].(physarum.Palette), float32(settings["gamma"].(float64)))
+		model = physarum.MakeModel(settings)
+		texture.Init(len(model.Configs), settings.Width, settings.Height, settings.Particles)
+		texture.SetPalette(settings.Palette, settings.Gamma)
 	}
-
 	reset()
 
+	// Manage key presses
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
-		// Manage key presses
 		if action == glfw.Press {
 			switch key {
 			case glfw.KeySpace:
@@ -104,19 +82,19 @@ func main() {
 			case glfw.KeyR:
 				model.StartOver()
 			case glfw.KeyP:
-				settings["palette"] = physarum.RandomPalette()
-				texture.SetPalette(settings["palette"].(physarum.Palette), float32(settings["gamma"].(float64)))
+				settings.Palette = physarum.RandomPalette()
+				texture.SetPalette(settings.Palette, settings.Gamma)
 			case glfw.KeyO:
 				texture.ShufflePalette()
 			case glfw.KeyA:
 				texture.AutoLevel(model.Data(), 0.001, 0.999)
 			case glfw.KeyKPAdd:
-				if num_steps < math.MaxInt {
-					num_steps++
+				if settings.StepsPerFrame < math.MaxInt {
+					settings.StepsPerFrame++
 				}
 			case glfw.KeyKPSubtract:
-				if num_steps > 1 {
-					num_steps--
+				if settings.StepsPerFrame > 1 {
+					settings.StepsPerFrame--
 				}
 			case glfw.Key1:
 				model.InitType = "random"
@@ -149,7 +127,7 @@ func main() {
 	// Until the window needs closing
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		for i := 0; i < num_steps; i++ {
+		for i := 0; i < settings.StepsPerFrame; i++ {
 			// Step model at desired rate
 			model.Step()
 		}
