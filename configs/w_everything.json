@@ -1,0 +1,107 @@
+{
+    "Width": 4096,
+    "Height": 2048,
+    "Particles": 8388608,
+    "Fps": 60,
+    "StepsPerFrame": 1,
+    "NumConfigs": 4,
+    "BlurRadius": 1,
+    "BlurPasses": 2,
+    "ZoomFactor": 1,
+    "Scale": 0.5,
+    "Gamma": 0.45454547,
+    "InitType": "random_circle_cw",
+    "SaveVideo": true,
+    "AttractionTable": [
+        [
+            0.62444633,
+            -0.90869063,
+            -1.4173883,
+            -1.1982219
+        ],
+        [
+            -0.80568284,
+            1.1020392,
+            -0.64498734,
+            -1.0988536
+        ],
+        [
+            -1.359865,
+            -0.995516,
+            0.9918238,
+            -1.3332903
+        ],
+        [
+            -1.1814734,
+            -1.0160505,
+            -0.95921385,
+            0.7923996
+        ]
+    ],
+    "Configs": [
+        {
+            "SensorAngle": 0.7594948,
+            "SensorDistance": 54.51607,
+            "RotationAngle": 0.28914273,
+            "StepDistance": 1.6395253,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.18831635,
+            "SensorDistance": 4.4431977,
+            "RotationAngle": 1.8763828,
+            "StepDistance": 0.62329686,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.41298813,
+            "SensorDistance": 13.49869,
+            "RotationAngle": 2.0209808,
+            "StepDistance": 1.6205362,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 1.8092334,
+            "SensorDistance": 11.231276,
+            "RotationAngle": 0.282551856,
+            "StepDistance": 1.6600255,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        }
+    ],
+    "Palette": [
+        {
+            "R": 241,
+            "G": 90,
+            "B": 90,
+            "A": 255
+        },
+        {
+            "R": 45,
+            "G": 149,
+            "B": 191,
+            "A": 255
+        },
+        {
+            "R": 240,
+            "G": 196,
+            "B": 25,
+            "A": 255
+        },
+        {
+            "R": 149,
+            "G": 91,
+            "B": 165,
+            "A": 255
+        },
+        {
+            "R": 78,
+            "G": 186,
+            "B": 111,
+            "A": 255
+        }
+    ]
+}

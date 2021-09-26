@@ -1,0 +1,90 @@
+{
+    "Width": 4096,
+    "Height": 2048,
+    "Particles": 8388608,
+    "Fps": 60,
+    "StepsPerFrame": 1,
+    "NumConfigs": 3,
+    "BlurRadius": 1,
+    "BlurPasses": 2,
+    "ZoomFactor": 1,
+    "Scale": 0.5,
+    "Gamma": 0.45454547,
+    "InitType": "random_circle_random",
+    "SaveVideo": true,
+    "AttractionTable": [
+        [
+            1.1587235,
+            -0.7087803,
+            -0.92658836
+        ],
+        [
+            -1.053432,
+            1.0007591,
+            -1.2109454
+        ],
+        [
+            -1.1001947,
+            -1.1213256,
+            0.7284217
+        ]
+    ],
+    "Configs": [
+        {
+            "SensorAngle": 0.9355427,
+            "SensorDistance": 3.3179572,
+            "RotationAngle": 0.3291609,
+            "StepDistance": 1.6768583,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.038353205,
+            "SensorDistance": 40.052647,
+            "RotationAngle": 1.8446008,
+            "StepDistance": 1.1089209,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.88882303,
+            "SensorDistance": 52.645145,
+            "RotationAngle": 0.9283022,
+            "StepDistance": 0.80201095,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        }
+    ],
+    "Palette": [
+        {
+            "R": 255,
+            "G": 0,
+            "B": 255,
+            "A": 255
+        },
+        {
+            "R": 250,
+            "G": 26,
+            "B": 26,
+            "A": 255
+        },
+        {
+            "R": 255,
+            "G": 255,
+            "B": 255,
+            "A": 255
+        },
+        {
+            "R": 51,
+            "G": 255,
+            "B": 255,
+            "A": 255
+        },
+        {
+            "R": 255,
+            "G": 153,
+            "B": 0,
+            "A": 255
+        }
+    ]
+}
