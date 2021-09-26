@@ -27,6 +27,8 @@ type Model struct {
 	Iteration int
 
 	InitType string
+
+	seed int64
 }
 
 func MakeModel(settings *Settings) *Model {
@@ -40,17 +42,20 @@ func MakeModel(settings *Settings) *Model {
 		settings.Configs,
 		settings.AttractionTable,
 		settings.InitType,
+		settings.Seed,
 	)
+
 	log.Println("********************")
 	PrintConfigs(model.Configs, model.AttractionTable)
 	SummarizeConfigs(model.Configs)
 	log.Println("********************")
+
 	return model
 }
 
 func NewModel(
 	w, h, numParticles, blurRadius, blurPasses int, zoomFactor float32,
-	configs []Config, attractionTable [][]float32, initType string) *Model {
+	configs []Config, attractionTable [][]float32, initType string, seed int64) *Model {
 
 	grids := make([]*Grid, len(configs))
 	numParticlesPerConfig := int(math.Ceil(
@@ -59,7 +64,7 @@ func NewModel(
 	particles := make([]Particle, actualNumParticles)
 	m := &Model{
 		w, h, blurRadius, blurPasses, zoomFactor,
-		configs, attractionTable, grids, particles, 0, initType}
+		configs, attractionTable, grids, particles, 0, initType, seed}
 	m.StartOver()
 	return m
 }
@@ -169,7 +174,7 @@ func (m *Model) Step() {
 	}
 
 	updateParticles := func(wi, wn int, wg *sync.WaitGroup) {
-		seed := int64(m.Iteration)<<8 | int64(wi)
+		seed := (int64(m.Iteration)<<8 | int64(wi)) + int64(m.seed)
 		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
 		batch := int(math.Ceil(float64(n) / float64(wn)))

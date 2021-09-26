@@ -87,7 +87,7 @@ func Run() {
 		table := RandomAttractionTable(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, zoomFactor,
-			configs, table, "random_circle_in")
+			configs, table, "random_circle_in", time.Now().UTC().UnixNano()/1000)
 		frames(model, 3)
 	}
 
@@ -97,7 +97,7 @@ func Run() {
 		table := RandomAttractionTable(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, zoomFactor,
-			configs, table, "random")
+			configs, table, "random", time.Now().UTC().UnixNano()/1000)
 		start := time.Now()
 		one(model, iterations)
 		fmt.Println(time.Since(start))
