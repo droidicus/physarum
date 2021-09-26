@@ -17,26 +17,25 @@ type Settings struct {
 	outputPath string
 
 	// Exported below this line
-	Width         int
-	Height        int
-	Particles     int
-	Fps           int
-	StepsPerFrame int
-	Seed          int64
-	NumConfigs    int
-	BlurRadius    int
-	BlurPasses    int
-	ZoomFactor    float32
-	Scale         float32
-	Gamma         float32
-	InitType      string
-	SaveVideo     bool
+	Width         int     // Width of the simulation grid
+	Height        int     // Height of the simulation grid
+	Particles     int     // Pumber of particles to simulate
+	StepsPerFrame int     // How many
+	Seed          int64   // Seed to use for the random number generator
+	NumConfigs    int     // Number of configs, this many random configs will be generated if needed
+	BlurRadius    int     // Radius to use for the blur algorithm
+	BlurPasses    int     // Number of passes to use of the blur algorithm
+	ZoomFactor    float32 // Display param
+	Scale         float32 // Display param
+	Gamma         float32 // Palette param
+	InitType      string  // Which init to use
+	SaveVideo     bool    // Save video to mp4 file
+	Fps           int     // FPS of the video to be saved
+	MaxSteps      int     // Maximum number of steps to simulate before finishing
 
-	AttractionTable [][]float32
-	Configs         []Config
-	Palette         Palette
-
-	// Misc map[string]interface{}
+	AttractionTable [][]float32 // Defines interactions between the species
+	Configs         []Config    // Define behavior of each species
+	Palette         Palette     // How to make them colorful
 }
 
 func nsSincePsuedoEpoch() int64 {
@@ -61,6 +60,7 @@ func NewSettings(inputSettingsFile string) *Settings {
 		Gamma:         1 / 2.2,
 		outputPath:    "output",
 		SaveVideo:     true,
+		MaxSteps:      0,
 	}
 
 	// Read the JSON file settings if supplied, use default values (above) for fields not found

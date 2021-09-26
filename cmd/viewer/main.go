@@ -134,6 +134,11 @@ func main() {
 		if saveVideo {
 			// Send framebuffer for rendering into video if required
 			videoFameChann <- texture.GetFramebuffer()
+
+			// End if we have the desired number of frames
+			if (settings.MaxSteps > 0) && (video.FrameCount >= settings.MaxSteps-1) {
+				break
+			}
 		}
 
 		// Display image and manage interface
