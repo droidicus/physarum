@@ -11,9 +11,10 @@ import (
 )
 
 type Video struct {
-	cmd      *exec.Cmd
-	stdin    io.WriteCloser
-	settings *Settings
+	FrameCount int
+	cmd        *exec.Cmd
+	stdin      io.WriteCloser
+	settings   *Settings
 }
 
 func check(err error) {
@@ -65,26 +66,24 @@ func (v *Video) StartVideo() {
 }
 
 func (v *Video) SaveVideoFfmpeg(videoFameChann <-chan []uint8, videoDoneChann chan<- bool) {
-	for {
-		frame, more := <-videoFameChann
-		if more {
-			// fmt.Println("frame")
-			_, err := v.stdin.Write(frame)
-			check(err)
-		} else {
-			fmt.Println("Video Frame Channel Closed, shutting down video encode and cleaning up!")
-			// Close the pipe and wait for the process to complete
-			check(v.stdin.Close())
-			v.cmd.Wait()
-
-			// Run second pass to unfragment the file
-			v.FaststartVideoFfmpeg()
-
-			// Send sync signal, Done!
-			videoDoneChann <- true
-			return
-		}
+	for frame := range videoFameChann {
+		// Write framebuffer to the pipe and check for errors
+		_, err := v.stdin.Write(frame)
+		check(err)
+		v.FrameCount++
 	}
+
+	fmt.Println("Video Frame Channel Closed, shutting down video encode and cleaning up!")
+
+	// Close the pipe and wait for the process to complete
+	check(v.stdin.Close())
+	v.cmd.Wait()
+
+	// Run second pass to unfragment the file
+	v.FaststartVideoFfmpeg()
+
+	// Send sync signal, Done!
+	videoDoneChann <- true
 }
 
 func (v *Video) FaststartVideoFfmpeg() {
@@ -100,4 +99,7 @@ func (v *Video) FaststartVideoFfmpeg() {
 	stdoutStderr, err := faststart_cmd.CombinedOutput()
 	check(err)
 	fmt.Print(string(stdoutStderr))
+
+	// Get rid of the fragmented video file
+	check(os.Remove(v.settings.GetFilePathWOExtension() + ".mp4"))
 }
