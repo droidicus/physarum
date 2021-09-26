@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"sort"
+	"sync"
 
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -11,20 +12,19 @@ import (
 )
 
 type Texture struct {
-	w        int
-	h        int
-	id       uint32
-	buf      []uint8
-	acc      []float32
-	r        [][]float32
-	g        [][]float32
-	b        [][]float32
-	min      []float32
-	max      []float32
-	settings Settings
+	w   int
+	h   int
+	id  uint32
+	buf []uint8
+	acc []float32
+	r   [][]float32
+	g   [][]float32
+	b   [][]float32
+	min []float32
+	max []float32
 }
 
-func NewTexture(settings Settings) *Texture {
+func NewTexture(settings *Settings) *Texture {
 	var id uint32
 	gl.GenTextures(1, &id)
 	gl.BindTexture(gl.TEXTURE_2D, id)
@@ -33,13 +33,13 @@ func NewTexture(settings Settings) *Texture {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
-	return &Texture{id: id, settings: settings}
+	return &Texture{id: id}
 }
 
-func (t *Texture) Init(count int) {
+func (t *Texture) Init(count int, width int, height int, particles int) {
 	const N = 65536
-	t.w = t.settings["width"].(int)
-	t.h = t.settings["height"].(int)
+	t.w = width
+	t.h = height
 	t.buf = make([]uint8, t.w*t.h*3)
 	t.acc = make([]float32, t.w*t.h*3)
 	t.r = make([][]float32, count)
@@ -50,7 +50,7 @@ func (t *Texture) Init(count int) {
 		t.g[i] = make([]float32, N)
 		t.b[i] = make([]float32, N)
 	}
-	max := float32(t.settings["particles"].(int)) / float32(t.w*t.h) * 10
+	max := float32(particles) / float32(t.w*t.h) * 10
 	t.min = make([]float32, count)
 	t.max = make([]float32, count)
 	for i := range t.min {
@@ -96,27 +96,43 @@ func (t *Texture) AutoLevel(data [][]float32, minPercentile, maxPercentile float
 }
 
 func (t *Texture) update(data [][]float32) {
+	// waitgroup for threads
+	var wg sync.WaitGroup
+
 	for i := range t.acc {
 		t.acc[i] = 0
 	}
 	f := float32(len(t.r[0]) - 1)
 	for i, grid := range data {
-		min, max := t.min[i], t.max[i]
-		m := 1 / float32(max-min)
-		for j, value := range grid {
-			p := (value - min) * m
-			if p < 0 {
-				p = 0
+		// New thread to wait on
+		wg.Add(1)
+
+		go func(i int, grid []float32) {
+			// Defer
+			defer wg.Done()
+
+			// Do parallel loops
+			min, max := t.min[i], t.max[i]
+			m := 1 / float32(max-min)
+			for j, value := range grid {
+				p := (value - min) * m
+				if p < 0 {
+					p = 0
+				}
+				if p > 1 {
+					p = 1
+				}
+				index := int(p * f)
+				t.acc[j*3+0] += t.r[i][index]
+				t.acc[j*3+1] += t.g[i][index]
+				t.acc[j*3+2] += t.b[i][index]
 			}
-			if p > 1 {
-				p = 1
-			}
-			index := int(p * f)
-			t.acc[j*3+0] += t.r[i][index]
-			t.acc[j*3+1] += t.g[i][index]
-			t.acc[j*3+2] += t.b[i][index]
-		}
+		}(i, grid)
 	}
+
+	// Wait for the threads to finish
+	wg.Wait()
+
 	for i, value := range t.acc {
 		if value > 255 {
 			value = 255

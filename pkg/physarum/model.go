@@ -2,6 +2,7 @@ package physarum
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"runtime"
@@ -26,6 +27,25 @@ type Model struct {
 	Iteration int
 
 	InitType string
+}
+
+func MakeModel(settings *Settings) *Model {
+	model := NewModel(
+		settings.Width,
+		settings.Height,
+		settings.Particles,
+		settings.BlurRadius,
+		settings.BlurPasses,
+		settings.ZoomFactor,
+		settings.Configs,
+		settings.AttractionTable,
+		settings.InitType,
+	)
+	log.Println("********************")
+	PrintConfigs(model.Configs, model.AttractionTable)
+	SummarizeConfigs(model.Configs)
+	log.Println("********************")
+	return model
 }
 
 func NewModel(
