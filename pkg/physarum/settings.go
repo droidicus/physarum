@@ -45,7 +45,7 @@ func nsSincePsuedoEpoch() int64 {
 }
 
 func NewSettings(inputSettingsFile string) *Settings {
-	// TODO: Stub, replace with json read/write
+	// Simple Defaults
 	s := &Settings{
 		Width:         4096,
 		Height:        2048,
