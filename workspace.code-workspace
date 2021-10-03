@@ -4,5 +4,17 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"defragment",
+			"droidicus",
+			"glfw",
+			"gonum",
+			"libx",
+			"movflags",
+			"Parameteri",
+			"psuedo",
+			"Quantile"
+		]
+	}
 }

@@ -19,7 +19,7 @@ type Settings struct {
 	// Exported below this line
 	Width         int     // Width of the simulation grid
 	Height        int     // Height of the simulation grid
-	Particles     int     // Pumber of particles to simulate
+	Particles     int     // Number of particles to simulate
 	StepsPerFrame int     // How many
 	Seed          int64   // Seed to use for the random number generator
 	NumConfigs    int     // Number of configs, this many random configs will be generated if needed
@@ -39,8 +39,8 @@ type Settings struct {
 }
 
 func nsSincePsuedoEpoch() int64 {
-	psuedo_epoch := time.Date(2020, 3, 12, 9, 0, 0, 0, time.UTC).UnixNano()
-	return time.Now().UTC().UnixNano() - psuedo_epoch // nanoseconds since psuedo-epoch
+	psuedoEpoch := time.Date(2020, 3, 12, 9, 0, 0, 0, time.UTC).UnixNano()
+	return time.Now().UTC().UnixNano() - psuedoEpoch // nanoseconds since psuedo-epoch
 }
 
 func GetSettingFileRandString() string {

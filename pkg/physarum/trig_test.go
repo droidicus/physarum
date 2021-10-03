@@ -41,7 +41,7 @@ func BenchmarkCos64(b *testing.B) {
 	result_float = r
 }
 
-func BenchmarkCustonCos32(b *testing.B) {
+func BenchmarkCustomCos32(b *testing.B) {
 	var r float32
 
 	// Run the cos benchmark
@@ -63,7 +63,7 @@ func BenchmarkSin64(b *testing.B) {
 	result_float = r
 }
 
-func BenchmarkCustonSin32(b *testing.B) {
+func BenchmarkCustomSin32(b *testing.B) {
 	var r float32
 
 	// Run the cos benchmark

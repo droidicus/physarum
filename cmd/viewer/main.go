@@ -130,11 +130,11 @@ func main() {
 	// Set up goroutine to save video with FFMPEG if required
 	saveVideo := true
 	var video *physarum.Video
-	videoFameChann := make(chan []uint8, 1024)
-	videoDoneChann := make(chan bool)
+	videoFameChan := make(chan []uint8, 1024)
+	videoDoneChan := make(chan bool)
 	if saveVideo {
 		video = physarum.NewVideo(settings)
-		go video.SaveVideoFfmpeg(videoFameChann, videoDoneChann)
+		go video.SaveVideoFfmpeg(videoFameChan, videoDoneChan)
 	}
 
 	// Until the window needs closing
@@ -146,7 +146,7 @@ func main() {
 		}
 		if saveVideo {
 			// Send framebuffer for rendering into video if required
-			videoFameChann <- texture.GetFramebuffer()
+			videoFameChan <- texture.GetFramebuffer()
 
 			// End if we have the desired number of frames
 			if (settings.MaxSteps > 0) && (video.FrameCount >= settings.MaxSteps-1) {
@@ -161,7 +161,7 @@ func main() {
 	}
 
 	// Close the channel and let the video finish
-	close(videoFameChann)
+	close(videoFameChan)
 	log.Println("sent all frames, waiting for encoding to complete")
-	<-videoDoneChann // wait for the goroutine to be finished
+	<-videoDoneChan // wait for the goroutine to be finished
 }
