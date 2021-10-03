@@ -81,8 +81,7 @@ func frames(model *Model, rate int) {
 
 func Run() {
 	if true {
-		// n := 2 + rand.Intn(4)
-		n := 1
+		n := 2 + rand.Intn(4)
 		configs := RandomConfigs(n)
 		table := RandomAttractionTable(n)
 		model := NewModel(

@@ -75,19 +75,46 @@ func main() {
 
 	// Manage key presses
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
+		// Helper to set init type and reset the simulation
+		setInitType := func(initType string) {
+			// TODO: refactor the model to take a settings object, this is a hack for now
+			settings.InitType = initType
+			model.InitType = initType
+			reset()
+		}
+
 		if action == glfw.Press {
 			switch key {
 			case glfw.KeySpace:
 				reset()
-			case glfw.KeyR:
-				model.StartOver()
+			case glfw.KeyA:
+				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyO:
+				texture.ShufflePalette()
 			case glfw.KeyP:
 				settings.Palette = physarum.RandomPalette()
 				texture.SetPalette(settings.Palette, settings.Gamma)
-			case glfw.KeyO:
-				texture.ShufflePalette()
-			case glfw.KeyA:
-				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyR:
+				model.StartOver()
+			case glfw.KeyW:
+				err := settings.WriteSettingsToFileForce(physarum.GetSettingFileRandString())
+				if err != nil {
+					log.Println("Error writing settings to file!", err)
+				}
+			case glfw.Key1:
+				setInitType("random")
+			case glfw.Key2:
+				setInitType("point")
+			case glfw.Key3:
+				setInitType("random_circle_random")
+			case glfw.Key4:
+				setInitType("random_circle_out")
+			case glfw.Key5:
+				setInitType("random_circle_in")
+			case glfw.Key6:
+				setInitType("random_circle_quads")
+			case glfw.Key7:
+				setInitType("random_circle_cw")
 			case glfw.KeyKPAdd:
 				if settings.StepsPerFrame < math.MaxInt {
 					settings.StepsPerFrame++
@@ -96,20 +123,6 @@ func main() {
 				if settings.StepsPerFrame > 1 {
 					settings.StepsPerFrame--
 				}
-			case glfw.Key1:
-				model.InitType = "random"
-			case glfw.Key2:
-				model.InitType = "point"
-			case glfw.Key3:
-				model.InitType = "random_circle_random"
-			case glfw.Key4:
-				model.InitType = "random_circle_out"
-			case glfw.Key5:
-				model.InitType = "random_circle_in"
-			case glfw.Key6:
-				model.InitType = "random_circle_quads"
-			case glfw.Key7:
-				model.InitType = "random_circle_cw"
 			}
 		}
 	})

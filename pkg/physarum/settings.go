@@ -43,6 +43,10 @@ func nsSincePsuedoEpoch() int64 {
 	return time.Now().UTC().UnixNano() - psuedo_epoch // nanoseconds since psuedo-epoch
 }
 
+func GetSettingFileRandString() string {
+	return fmt.Sprint(nsSincePsuedoEpoch() / (1000 * 1000 * 1000))
+}
+
 func NewSettings(inputSettingsFile string) *Settings {
 	// Simple Defaults
 	s := &Settings{
@@ -75,16 +79,16 @@ func NewSettings(inputSettingsFile string) *Settings {
 	rand.Seed(s.Seed)
 
 	// seconds since psuedo-epoch
-	s.outputFile = fmt.Sprint(nsSincePsuedoEpoch() / (1000 * 1000 * 1000))
+	s.outputFile = GetSettingFileRandString()
 
-	// If NumConfigs is not specified, random palette
+	// If Pallette is not specified, random palette
 	if s.Palette == nil {
 		s.Palette = RandomPalette()
 	}
 
 	// If NumConfigs is not specified, random value (note, this is not used unless the fields below are nil)
 	if s.NumConfigs == 0 {
-		s.NumConfigs = 2 + rand.Intn(4)
+		s.NumConfigs = 1 + rand.Intn(5)
 	}
 
 	// If Configs is not specified, random config
@@ -120,13 +124,23 @@ func (s Settings) GetFilePathWOExtension() string {
 	return filepath.Join(s.outputPath, s.outputFile)
 }
 
-func (s Settings) WriteSettingsToFile() error {
-	// Write a json file with the settings
+func (s Settings) WriteSettingsToFileForce(output_file string) error {
+	// Create output directory if needed
 	if err := os.MkdirAll(s.GetOutputPath(), os.ModePerm); err != nil {
 		log.Fatalln(err)
 	}
 
-	// Write file
+	// Write a json file with the settings to the file specified
+	return ioutil.WriteFile(filepath.Join(s.outputPath, output_file)+".json", s.GetSettingsJson(), 0644)
+}
+
+func (s Settings) WriteSettingsToFile() error {
+	// Create output directory if needed
+	if err := os.MkdirAll(s.GetOutputPath(), os.ModePerm); err != nil {
+		log.Fatalln(err)
+	}
+
+	// Write a json file with the settings
 	return ioutil.WriteFile(s.GetFilePathWOExtension()+".json", s.GetSettingsJson(), 0644)
 }
 
