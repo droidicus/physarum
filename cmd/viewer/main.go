@@ -90,6 +90,7 @@ func main() {
 			case glfw.KeyA:
 				texture.AutoLevel(model.Data(), 0.001, 0.999)
 			case glfw.KeyO:
+				// TODO: this is not currently saved in settings
 				texture.ShufflePalette()
 			case glfw.KeyP:
 				settings.Palette = physarum.RandomPalette()
