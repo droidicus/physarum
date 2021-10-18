@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"runtime"
+	"time"
 
 	// "net/http"
 	// _ "net/http/pprof"
@@ -138,6 +139,9 @@ func main() {
 		go video.SaveVideoFfmpeg(videoFameChan, videoDoneChan)
 	}
 
+	// Record start time
+	start := time.Now()
+
 	// Until the window needs closing
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
@@ -161,8 +165,18 @@ func main() {
 		glfw.PollEvents()
 	}
 
+	// Get elapsed time for the simulation
+	elapsed := time.Since(start)
+
 	// Close the channel and let the video finish
 	close(videoFameChan)
 	log.Println("sent all frames, waiting for encoding to complete")
 	<-videoDoneChan // wait for the goroutine to be finished
+
+	// Print stats
+	log.Println("Elapsed Time:\t", elapsed)
+	if saveVideo {
+		log.Println("Number of frames:\t", video.FrameCount)
+		log.Println("Frames/sec:\t", float64(video.FrameCount)/elapsed.Seconds())
+	}
 }
