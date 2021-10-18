@@ -56,7 +56,6 @@ func NewSettings(inputSettingsFile string) *Settings {
 		Fps:           60,
 		StepsPerFrame: 1,
 		Seed:          nsSincePsuedoEpoch(),
-		InitType:      "random_circle_random",
 		BlurRadius:    1,
 		BlurPasses:    2,
 		ZoomFactor:    1,
@@ -99,6 +98,11 @@ func NewSettings(inputSettingsFile string) *Settings {
 	// If AttractionTable is not specified, random attraction table
 	if s.AttractionTable == nil {
 		s.AttractionTable = RandomAttractionTable(s.NumConfigs)
+	}
+
+	// If InitType is not specified, random init type
+	if s.InitType == "" {
+		s.InitType = RandomInitType()
 	}
 
 	return s

@@ -9,6 +9,33 @@ import (
 	"sync"
 )
 
+// All the supported init types
+const (
+	Random             = "random"
+	Point              = "point"
+	RandomCircleRandom = "random_circle_random"
+	RandomCircleOut    = "random_circle_out"
+	RandomCircleIn     = "random_circle_in"
+	RandomCircleCW     = "random_circle_cw"
+	RandomCircleQuads  = "random_circle_quads"
+)
+
+// All of the supported init types in a slice
+var AllInitTypes = [...]string{
+	Random,
+	Point,
+	RandomCircleRandom,
+	RandomCircleOut,
+	RandomCircleIn,
+	RandomCircleCW,
+	RandomCircleQuads,
+}
+
+// Pick a random init type from above
+func RandomInitType() string {
+	return AllInitTypes[rand.Intn(len(AllInitTypes))]
+}
+
 type Model struct {
 	W int
 	H int
@@ -78,15 +105,15 @@ func (m *Model) StartOver() {
 		for i := 0; i < numParticlesPerConfig; i++ {
 			var x, y, a float32
 			switch m.InitType {
-			case "random":
+			case Random:
 				x = rand.Float32() * float32(m.W)
 				y = rand.Float32() * float32(m.H)
 				a = rand.Float32() * 2 * math.Pi
-			case "point":
+			case Point:
 				x = float32(m.W) / 2
 				y = float32(m.H) / 2
 				a = rand.Float32() * 2 * math.Pi
-			case "random_circle_random":
+			case RandomCircleRandom:
 				a = rand.Float32() * 2 * math.Pi
 				circle_radius_fraction := 0.25
 				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
@@ -94,14 +121,14 @@ func (m *Model) StartOver() {
 				x = float32(r*x_tmp) + float32(m.W)/2
 				y = float32(r*y_tmp) + float32(m.H)/2
 				a = rand.Float32() * 2 * math.Pi
-			case "random_circle_out":
+			case RandomCircleOut:
 				a = rand.Float32() * 2 * math.Pi
 				circle_radius_fraction := 0.25
 				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
 				y_tmp, x_tmp := math.Sincos(float64(a))
 				x = float32(r*x_tmp) + float32(m.W)/2
 				y = float32(r*y_tmp) + float32(m.H)/2
-			case "random_circle_in":
+			case RandomCircleIn:
 				a = rand.Float32() * 2 * math.Pi
 				circle_radius_fraction := 0.25
 				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
@@ -110,7 +137,7 @@ func (m *Model) StartOver() {
 				y = float32(r*y_tmp) + float32(m.H)/2
 				a_tmp := float64(a + math.Pi)
 				a = float32(math.Atan2(math.Sin(a_tmp), math.Cos(a_tmp)))
-			case "random_circle_cw":
+			case RandomCircleCW:
 				a = rand.Float32() * 2 * math.Pi
 				circle_radius_fraction := 0.25
 				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
@@ -118,8 +145,8 @@ func (m *Model) StartOver() {
 				x = float32(r*x_tmp) + float32(m.W)/2
 				y = float32(r*y_tmp) + float32(m.H)/2
 				a_tmp := float64(a + math.Pi/2.0)
-				a = float32(math.Atan2(math.Sin(a_tmp), math.Cos(a_tmp)))
-			case "random_circle_quads":
+				a = float32(math.Atan2(math.Sincos(a_tmp)))
+			case RandomCircleQuads:
 				a = rand.Float32() * 2 * math.Pi
 				circle_radius_fraction := 0.25
 				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
@@ -150,12 +177,18 @@ func (m *Model) Step() {
 		rotationAngle := config.RotationAngle
 		stepDistance := config.StepDistance * m.ZoomFactor
 
-		xc := p.X + cos(p.A)*sensorDistance
-		yc := p.Y + sin(p.A)*sensorDistance
-		xl := p.X + cos(p.A-sensorAngle)*sensorDistance
-		yl := p.Y + sin(p.A-sensorAngle)*sensorDistance
-		xr := p.X + cos(p.A+sensorAngle)*sensorDistance
-		yr := p.Y + sin(p.A+sensorAngle)*sensorDistance
+		sinResult, cosResult := sincos(p.A)
+		xc := p.X + cosResult*sensorDistance
+		yc := p.Y + sinResult*sensorDistance
+
+		sinResult, cosResult = sincos(p.A - sensorAngle)
+		xl := p.X + cosResult*sensorDistance
+		yl := p.Y + sinResult*sensorDistance
+
+		sinResult, cosResult = sincos(p.A + sensorAngle)
+		xr := p.X + cosResult*sensorDistance
+		yr := p.Y + sinResult*sensorDistance
+
 		C := grid.GetTemp(xc, yc)
 		L := grid.GetTemp(xl, yl)
 		R := grid.GetTemp(xr, yr)
@@ -168,8 +201,9 @@ func (m *Model) Step() {
 			da = rotationAngle * weightedDirection(rnd, C, L, R)
 		}
 		p.A = Shift(p.A+da, 2*math.Pi)
-		p.X = Shift(p.X+cos(p.A)*stepDistance, float32(m.W))
-		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float32(m.H))
+		sinResult, cosResult = sincos(p.A)
+		p.X = Shift(p.X+cosResult*stepDistance, float32(m.W))
+		p.Y = Shift(p.Y+sinResult*stepDistance, float32(m.H))
 		m.Particles[i] = p
 	}
 
