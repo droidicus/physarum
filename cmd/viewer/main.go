@@ -70,6 +70,7 @@ func main() {
 	reset := func() {
 		model = physarum.MakeModel(settings)
 		texture.Init(len(model.Configs), settings.Width, settings.Height, settings.Particles)
+		texture.Update(model.Data())
 		texture.SetPalette(settings.Palette, settings.Gamma)
 	}
 	reset()
@@ -150,8 +151,8 @@ func main() {
 			model.Step()
 		}
 		if saveVideo {
-			// Send framebuffer for rendering into video if required
-			videoFameChan <- texture.GetFramebuffer()
+			// Send a copy of the framebuffer for rendering into video if required
+			videoFameChan <- texture.GetFramebufferCopy()
 
 			// End if we have the desired number of frames
 			if (settings.MaxSteps > 0) && (video.FrameCount >= settings.MaxSteps-1) {

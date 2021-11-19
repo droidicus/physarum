@@ -46,7 +46,7 @@ func (v *Video) StartVideo() {
 		"-bf", "2", // 2 b-frames
 		"-rc-lookahead", "2",
 		"-g", fmt.Sprint(v.settings.Fps/2), // Closed GOP at half frame rate
-		"-crf", "18", // Nearly visually lossless, pretty big files
+		"-crf", fmt.Sprint(v.settings.Crf),
 		"-pix_fmt", "yuv420p",
 		"-movflags", "frag_keyframe", // Fragmented output file for crash recoverability
 		v.settings.GetFilePathWOExtension()+".mp4",

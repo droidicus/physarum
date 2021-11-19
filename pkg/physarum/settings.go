@@ -32,6 +32,7 @@ type Settings struct {
 	SaveVideo     bool    // Save video to mp4 file
 	Fps           int     // FPS of the video to be saved
 	MaxSteps      int     // Maximum number of steps to simulate before finishing
+	Crf           int     // Constant Rate Factor for video encoding
 
 	AttractionTable [][]float32 // Defines interactions between the species
 	Configs         []Config    // Define behavior of each species
@@ -64,6 +65,7 @@ func NewSettings(inputSettingsFile string) *Settings {
 		outputPath:    "output",
 		SaveVideo:     true,
 		MaxSteps:      0,
+		Crf:           18, // Nearly visually lossless, pretty big files
 	}
 
 	// Read the JSON file settings if supplied, use default values (above) for fields not found
