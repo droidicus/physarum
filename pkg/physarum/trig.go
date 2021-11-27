@@ -33,9 +33,20 @@ func init() {
 func sin(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
 	return sinTable[i]
+	// return float32(math.Sin(float64(t)))
 }
 
 func cos(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
 	return cosTable[i]
+	// return float32(math.Cos(float64(t)))
+}
+
+func sincos(t float32) (float32, float32) {
+	// built-in Float64
+	// sinResult, cosResult := math.Sincos(float64(t))
+	// return float32(sinResult), float32(cosResult)
+
+	// Custom
+	return sin(t), cos(t)
 }

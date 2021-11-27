@@ -24,7 +24,7 @@ func check(err error) {
 }
 
 func NewVideo(settings *Settings) *Video {
-	// Make a new video, and start the process to recieve data later
+	// Make a new video, and start the process to receive data later
 	v := &Video{settings: settings}
 	v.StartVideo()
 	return v
@@ -46,9 +46,9 @@ func (v *Video) StartVideo() {
 		"-bf", "2", // 2 b-frames
 		"-rc-lookahead", "2",
 		"-g", fmt.Sprint(v.settings.Fps/2), // Closed GOP at half frame rate
-		"-crf", "18", // Nearly visually lossless, pretty big files
+		"-crf", fmt.Sprint(v.settings.Crf),
 		"-pix_fmt", "yuv420p",
-		"-movflags", "frag_keyframe", // Fragmented output file for crash recoverablity
+		"-movflags", "frag_keyframe", // Fragmented output file for crash recoverability
 		v.settings.GetFilePathWOExtension()+".mp4",
 	)
 
@@ -65,8 +65,8 @@ func (v *Video) StartVideo() {
 	check(v.cmd.Start())
 }
 
-func (v *Video) SaveVideoFfmpeg(videoFameChann <-chan []uint8, videoDoneChann chan<- bool) {
-	for frame := range videoFameChann {
+func (v *Video) SaveVideoFfmpeg(videoFameChan <-chan []uint8, videoDoneChan chan<- bool) {
+	for frame := range videoFameChan {
 		// Write framebuffer to the pipe and check for errors
 		_, err := v.stdin.Write(frame)
 		check(err)
@@ -79,11 +79,11 @@ func (v *Video) SaveVideoFfmpeg(videoFameChann <-chan []uint8, videoDoneChann ch
 	check(v.stdin.Close())
 	v.cmd.Wait()
 
-	// Run second pass to unfragment the file
+	// Run second pass to defragment the file
 	v.FaststartVideoFfmpeg()
 
 	// Send sync signal, Done!
-	videoDoneChann <- true
+	videoDoneChan <- true
 }
 
 func (v *Video) FaststartVideoFfmpeg() {

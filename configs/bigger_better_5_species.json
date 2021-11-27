@@ -1,0 +1,126 @@
+{
+    "Width": 4096,
+    "Height": 2048,
+    "Particles": 8388608,
+    "Fps": 60,
+    "StepsPerFrame": 1,
+    "NumConfigs": 5,
+    "BlurRadius": 1,
+    "BlurPasses": 2,
+    "ZoomFactor": 1,
+    "Scale": 0.5,
+    "Gamma": 0.45454547,
+    "InitType": "random",
+    "SaveVideo": true,
+    "AttractionTable": [
+        [
+            0.5690088,
+            -0.36889058,
+            -0.96665984,
+            -1.0231985,
+            -0.9328417
+        ],
+        [
+            -0.664459,
+            0.84047544,
+            -1.1440141,
+            -0.97920287,
+            -1.0454894
+        ],
+        [
+            -1.2025689,
+            -1.0151728,
+            0.7688898,
+            -1.115901,
+            -0.8373627
+        ],
+        [
+            -1.5506105,
+            -0.99666286,
+            -1.3855056,
+            1.1599491,
+            -1.0815707
+        ],
+        [
+            -0.69140947,
+            -1.0783383,
+            -0.9605386,
+            -1.2291079,
+            0.65821826
+        ]
+    ],
+    "Configs": [
+        {
+            "SensorAngle": 0.24613065,
+            "SensorDistance": 21.517988,
+            "RotationAngle": 1.3301513,
+            "StepDistance": 1.1686558,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 1.0265492,
+            "SensorDistance": 56.365414,
+            "RotationAngle": 1.2501979,
+            "StepDistance": 1.525115,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.12266561,
+            "SensorDistance": 50.916855,
+            "RotationAngle": 0.65681976,
+            "StepDistance": 1.3187186,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 0.60589063,
+            "SensorDistance": 4.1774716,
+            "RotationAngle": 0.62518585,
+            "StepDistance": 1.6267793,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        },
+        {
+            "SensorAngle": 1.1766696,
+            "SensorDistance": 52.8101,
+            "RotationAngle": 0.3327398,
+            "StepDistance": 1.0476625,
+            "DepositionAmount": 5,
+            "DecayFactor": 0.1
+        }
+    ],
+    "Palette": [
+        {
+            "R": 168,
+            "G": 191,
+            "B": 18,
+            "A": 255
+        },
+        {
+            "R": 255,
+            "G": 159,
+            "B": 0,
+            "A": 255
+        },
+        {
+            "R": 0,
+            "G": 170,
+            "B": 181,
+            "A": 255
+        },
+        {
+            "R": 251,
+            "G": 213,
+            "B": 6,
+            "A": 255
+        },
+        {
+            "R": 244,
+            "G": 28,
+            "B": 84,
+            "A": 255
+        }
+    ]
+}

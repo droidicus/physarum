@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"runtime"
+	"time"
 
 	// "net/http"
 	// _ "net/http/pprof"
@@ -69,25 +70,54 @@ func main() {
 	reset := func() {
 		model = physarum.MakeModel(settings)
 		texture.Init(len(model.Configs), settings.Width, settings.Height, settings.Particles)
+		texture.Update(model.Data())
 		texture.SetPalette(settings.Palette, settings.Gamma)
 	}
 	reset()
 
 	// Manage key presses
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
+		// Helper to set init type and reset the simulation
+		setInitType := func(initType string) {
+			// TODO: refactor the model to take a settings object, this is a hack for now
+			settings.InitType = initType
+			model.InitType = initType
+			reset()
+		}
+
 		if action == glfw.Press {
 			switch key {
 			case glfw.KeySpace:
 				reset()
-			case glfw.KeyR:
-				model.StartOver()
+			case glfw.KeyA:
+				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyO:
+				// TODO: this is not currently saved in settings
+				texture.ShufflePalette()
 			case glfw.KeyP:
 				settings.Palette = physarum.RandomPalette()
 				texture.SetPalette(settings.Palette, settings.Gamma)
-			case glfw.KeyO:
-				texture.ShufflePalette()
-			case glfw.KeyA:
-				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyR:
+				model.StartOver()
+			case glfw.KeyW:
+				err := settings.WriteSettingsToFileForce(physarum.GetSettingFileRandString())
+				if err != nil {
+					log.Println("Error writing settings to file!", err)
+				}
+			case glfw.Key1:
+				setInitType("random")
+			case glfw.Key2:
+				setInitType("point")
+			case glfw.Key3:
+				setInitType("random_circle_random")
+			case glfw.Key4:
+				setInitType("random_circle_out")
+			case glfw.Key5:
+				setInitType("random_circle_in")
+			case glfw.Key6:
+				setInitType("random_circle_quads")
+			case glfw.Key7:
+				setInitType("random_circle_cw")
 			case glfw.KeyKPAdd:
 				if settings.StepsPerFrame < math.MaxInt {
 					settings.StepsPerFrame++
@@ -96,20 +126,6 @@ func main() {
 				if settings.StepsPerFrame > 1 {
 					settings.StepsPerFrame--
 				}
-			case glfw.Key1:
-				model.InitType = "random"
-			case glfw.Key2:
-				model.InitType = "point"
-			case glfw.Key3:
-				model.InitType = "random_circle_random"
-			case glfw.Key4:
-				model.InitType = "random_circle_out"
-			case glfw.Key5:
-				model.InitType = "random_circle_in"
-			case glfw.Key6:
-				model.InitType = "random_circle_quads"
-			case glfw.Key7:
-				model.InitType = "random_circle_cw"
 			}
 		}
 	})
@@ -117,12 +133,15 @@ func main() {
 	// Set up goroutine to save video with FFMPEG if required
 	saveVideo := true
 	var video *physarum.Video
-	videoFameChann := make(chan []uint8, 1024)
-	videoDoneChann := make(chan bool)
+	videoFameChan := make(chan []uint8, 1024)
+	videoDoneChan := make(chan bool)
 	if saveVideo {
 		video = physarum.NewVideo(settings)
-		go video.SaveVideoFfmpeg(videoFameChann, videoDoneChann)
+		go video.SaveVideoFfmpeg(videoFameChan, videoDoneChan)
 	}
+
+	// Record start time
+	start := time.Now()
 
 	// Until the window needs closing
 	for !window.ShouldClose() {
@@ -132,8 +151,8 @@ func main() {
 			model.Step()
 		}
 		if saveVideo {
-			// Send framebuffer for rendering into video if required
-			videoFameChann <- texture.GetFramebuffer()
+			// Send a copy of the framebuffer for rendering into video if required
+			videoFameChan <- texture.GetFramebufferCopy()
 
 			// End if we have the desired number of frames
 			if (settings.MaxSteps > 0) && (video.FrameCount >= settings.MaxSteps-1) {
@@ -147,8 +166,18 @@ func main() {
 		glfw.PollEvents()
 	}
 
+	// Get elapsed time for the simulation
+	elapsed := time.Since(start)
+
 	// Close the channel and let the video finish
-	close(videoFameChann)
+	close(videoFameChan)
 	log.Println("sent all frames, waiting for encoding to complete")
-	<-videoDoneChann // wait for the goroutine to be finished
+	<-videoDoneChan // wait for the goroutine to be finished
+
+	// Print stats
+	log.Println("Elapsed Time:\t", elapsed)
+	if saveVideo {
+		log.Println("Number of frames:\t", video.FrameCount)
+		log.Println("Frames/sec:\t", float64(video.FrameCount)/elapsed.Seconds())
+	}
 }

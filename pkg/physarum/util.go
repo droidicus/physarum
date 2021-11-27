@@ -1,12 +1,12 @@
 package physarum
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"math"
 	"os"
-	"fmt"
 	"path/filepath"
 )
 

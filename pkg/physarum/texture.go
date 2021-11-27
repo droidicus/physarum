@@ -95,7 +95,7 @@ func (t *Texture) AutoLevel(data [][]float32, minPercentile, maxPercentile float
 	}
 }
 
-func (t *Texture) update(data [][]float32) {
+func (t *Texture) Update(data [][]float32) {
 	// waitgroup for threads
 	var wg sync.WaitGroup
 
@@ -168,7 +168,7 @@ func (t *Texture) draw(window *glfw.Window) {
 }
 
 func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
-	t.update(data)
+	t.Update(data)
 	gl.BindTexture(gl.TEXTURE_2D, t.id)
 	gl.TexImage2D(
 		gl.TEXTURE_2D, 0, gl.RGB, int32(t.w), int32(t.h),
@@ -179,4 +179,9 @@ func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
 
 func (t *Texture) GetFramebuffer() []uint8 {
 	return t.buf
+}
+
+func (t *Texture) GetFramebufferCopy() []uint8 {
+	frame_buffer := t.GetFramebuffer()
+	return append(make([]uint8, 0, len(frame_buffer)), frame_buffer...)
 }
